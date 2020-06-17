@@ -115,7 +115,7 @@ static void step_motor(int32_t steps)
 			}
 		}
 	}
-	else
+	else if(steps < 0)
 	{
 		for(i = 0; i > steps; i--)
 		{
@@ -192,6 +192,7 @@ int main (void)
 		{
 			delay_ms(1000); // debounce
 			start_movement_time = get_current_time_ms();
+			current_step = 0;
 			controlled_movement = true;
 		}
 
@@ -203,8 +204,14 @@ int main (void)
 
 			// Simple P controller
 			float current_angle_deg = calculate_current_angle_deg();
-			int32_t steps_to_move = (int32_t) -50.0 * (desired_angle_deg - current_angle_deg); // move out
+			int32_t steps_to_move = (int32_t) 50.0 * (desired_angle_deg - current_angle_deg); // move out is positive steps
 			step_motor(steps_to_move);
+
+			static uint32_t last_cycle_t = 0;
+			if((get_current_time_ms() - last_cycle_t) > 5000)
+			{
+				last_cycle_t = get_current_time_ms();
+			}
 		}
 	}
 }
